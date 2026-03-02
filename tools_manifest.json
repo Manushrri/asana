@@ -1,0 +1,4343 @@
+{
+  "tools": [
+    {
+      "id": "GET_ACCESS_REQUESTS",
+      "target": "src.tools.access_request_tools:get_access_requests",
+      "description": "Retrieve access requests for a target object. Use when you need to get pending access requests for a specific resource like a project or portfolio. Get target GID from GET_MULTIPLE_PROJECTS or GET_PORTFOLIOS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "Optional user identifier ('me', email, or user GID) to filter requests by requester"
+          },
+          "target": {
+            "type": "string",
+            "description": "GID of the target object (project or portfolio)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "target"
+        ]
+      }
+    },
+    {
+      "id": "LIST_WORKSPACE_FILES",
+      "target": "src.tools.workspace_file_tools:list_workspace_files",
+      "description": "List files and folders inside the configured WORKSPACE_PATH. Use this to see what files are available for attachments or other file-based tools without exposing absolute server paths.\n\nArgs:\n  subfolder: Optional relative path inside the workspace to list (e.g. 'docs' or 'media/videos'). Omit to list the workspace root.\n  recursive: Optional boolean; if true, walks subdirectories recursively. Default: false.\n  max_results: Optional integer; maximum number of entries to return (default 200).\n\nReturns:\n  successful: Boolean indicating whether the listing succeeded.\n  data: Object with workspace_root (relative path), entries (array of {path, type, size_bytes}), recursive, max_results, and has_more.\n  error: Error message string if the request fails or WORKSPACE_PATH is not configured.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "subfolder": {
+            "type": "string",
+            "description": "Optional relative path inside the workspace to list (e.g. 'docs' or 'media/videos'). Omit to list the workspace root."
+          },
+          "recursive": {
+            "type": "boolean",
+            "description": "Whether to recursively walk subdirectories. Default: false."
+          },
+          "max_results": {
+            "type": "integer",
+            "description": "Maximum number of entries to return (default 200)."
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "CREATE_STATUS_FOR_OBJECT",
+      "target": "src.tools.project_tools:create_status_for_object",
+      "description": "Create a status update on a project, portfolio, or goal. Use when you need to communicate progress, blockers, or current state to all followers of an object. Get parent GID from GET_MULTIPLE_PROJECTS (project), GET_PORTFOLIOS (portfolio), or GET_GOALS (goal).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Body text of the status update"
+          },
+          "title": {
+            "type": "string",
+            "description": "Optional title of the status update"
+          },
+          "parent": {
+            "type": "string",
+            "description": "GID of the parent object (project, portfolio, or goal)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          },
+          "status_type": {
+            "type": "string",
+            "description": "Status type: on_track, at_risk, off_track, on_hold, or complete"
+          }
+        },
+        "required": [
+          "text",
+          "parent",
+          "status_type"
+        ]
+      }
+    },
+    {
+      "id": "APPROVE_ACCESS_REQUEST",
+      "target": "src.tools.access_request_tools:approve_access_request",
+      "description": "Approve an access request in Asana. Use when you need to grant access to a resource that requires approval workflow. Get access_request_gid from access request lists or notifications.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "access_request_gid": {
+            "type": "string",
+            "description": "GID of the access request to approve"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["access_request_gid"]
+      }
+    },
+    {
+      "id": "REJECT_ACCESS_REQUEST",
+      "target": "src.tools.access_request_tools:reject_access_request",
+      "description": "Reject an access request in Asana. Use when you need to deny a user's request for access to a project or portfolio. Get access_request_gid from GET_ACCESS_REQUESTS or from notifications.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "access_request_gid": {
+            "type": "string",
+            "description": "GID of the access request to reject"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["access_request_gid"]
+      }
+    },
+    {
+      "id": "CREATE_ACCESS_REQUEST",
+      "target": "src.tools.access_request_tools:create_access_request",
+      "description": "Create an access request in Asana. Use when you need to request access to a project or portfolio that you don't currently have access to. Get target GID (project or portfolio) from GET_MULTIPLE_PROJECTS or GET_PORTFOLIOS if you have partial visibility, or from the resource URL.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string",
+            "description": "GID of the project or portfolio to request access to"
+          },
+          "message": {
+            "type": "string",
+            "description": "Optional message to include with the request"
+          }
+        },
+        "required": ["target"]
+      }
+    },
+    {
+      "id": "GET_CURRENT_USER",
+      "target": "src.tools.user_tools:get_current_user",
+      "description": "Retrieves the authenticated user's full record, including user GID, name, email, and accessible workspaces. Often used as the first call to establish user context. Returns workspace_gid values needed by many other tools. No parameters required.",
+      "input_schema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "id": "CREATE_A_PROJECT",
+      "target": "src.tools.project_tools:create_project",
+      "description": "Creates a new Asana project in the specified workspace. Requires a workspace GID, and additionally a team GID if the workspace is an organization. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES. Get team_gid from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace to create the project in"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the project"
+          },
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team (required if workspace is an organization)"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color of the project (e.g. dark-blue, light-green, dark-purple, dark-red, dark-orange, light-orange, dark-teal, light-pink, light-warm-gray, none)"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Icon for the project (e.g. briefcase, list, target, rocket, calendar, chat_bubbles, computer, gear, notebook, star)"
+          },
+          "default_view": {
+            "type": "string",
+            "description": "Default view for the project (list, board, calendar, timeline)"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-form text description of the project"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Whether the project is archived"
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Whether the project is public to the organization"
+          },
+          "due_on": {
+            "type": "string",
+            "description": "Due date of the project in YYYY-MM-DD format"
+          },
+          "start_on": {
+            "type": "string",
+            "description": "Start date of the project in YYYY-MM-DD format"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_PROJECT_FOR_WORKSPACE",
+      "target": "src.tools.project_tools:create_project_for_workspace",
+      "description": "Create a project in a workspace. Use when you need to create a new project within a specific Asana workspace. Pass a data object with at least name; team is required when the workspace is an organization. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES, or omit to use your default workspace. data can include: name, team, color, icon, default_view, notes, archived, public, due_on, start_on.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace (from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES); omit to use default workspace"
+          },
+          "data": {
+            "type": "object",
+            "description": "Project data: must include name; include team if workspace is an organization (from GET_TEAMS_IN_WORKSPACE). May include color, icon, default_view, notes, archived, public, due_on, start_on."
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["data"]
+      }
+    },
+    {
+      "id": "CREATE_PROJECT_FOR_TEAM",
+      "target": "src.tools.project_tools:create_project_for_team",
+      "description": "Create a project in a team. Use when you need to create a new project within a specific Asana team. Pass data object with at least name. Get team_gid from GET_TEAMS_IN_WORKSPACE. data can include: name, color, icon, default_view, notes, archived, public, due_on, start_on.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team (from GET_TEAMS_IN_WORKSPACE)"
+          },
+          "data": {
+            "type": "object",
+            "description": "Project data: must include name. May include color, icon, default_view, notes, archived, public, due_on, start_on."
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["team_gid", "data"]
+      }
+    },
+    {
+      "id": "GET_TEAMS_IN_WORKSPACE",
+      "target": "src.tools.team_tools:get_teams_in_workspace",
+      "description": "Returns the compact records for all teams in the workspace visible to the authorized user. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES. Returns team GIDs needed by CREATE_A_PROJECT, GET_PROJECTS_FOR_TEAM, CREATE_TEAM, etc.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_USER",
+      "target": "src.tools.user_tools:get_user",
+      "description": "Get a user by their ID. If user_gid is omitted, returns the current authenticated user. Valid opt_fields: email, name, photo, workspaces, custom_fields (and subfields). user_task_list is NOT supported here; use GET_USER_TASK_LIST_FOR_USER to get a user's My Tasks list GID. Get user_gid from GET_CURRENT_USER, GET_MULTIPLE_USERS, GET_USERS_FOR_WORKSPACE, or GET_USERS_FOR_TEAM.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_gid": {
+            "type": "string",
+            "description": "GID of the user to retrieve (optional; defaults to current user)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional fields: email, name, photo, workspaces, custom_fields (and subfields). user_task_list is not valid; use GET_USER_TASK_LIST_FOR_USER for task list GID."
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "UPDATE_USER",
+      "target": "src.tools.user_tools:update_user",
+      "description": "Update a user's custom fields. Asana's API has limited user update capabilities; most user properties are read-only. Get user_gid from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get workspace from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES when updating workspace-scoped custom fields.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_gid": { "type": "string", "description": "GID of the user (from GET_CURRENT_USER, GET_MULTIPLE_USERS)" },
+          "workspace": { "type": "string", "description": "Workspace GID for scope (from GET_CURRENT_USER, GET_MULTIPLE_WORKSPACES)" },
+          "custom_fields": { "type": "object", "description": "Custom field GID to value map" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["user_gid"]
+      }
+    },
+    {
+      "id": "GET_MULTIPLE_PROJECTS",
+      "target": "src.tools.project_tools:get_multiple_projects",
+      "description": "Returns a list of projects filtered by workspace or team (one required), with optional archived status filter, supporting pagination. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get team GID from GET_TEAMS_IN_WORKSPACE. Returns project GIDs needed by many other tools.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace to filter projects by"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of the team to filter projects by"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Filter for archived projects"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "CREATE_A_TAG_IN_A_WORKSPACE",
+      "target": "src.tools.tag_tools:create_tag_in_workspace",
+      "description": "Creates a new tag within a specific Asana workspace. Tags help categorize tasks and are not automatically applied to tasks. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES. The data object should include 'name' and optionally 'color' (e.g. {\"name\": \"My Tag\", \"color\": \"light-green\"}).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace to create the tag in"
+          },
+          "data": {
+            "type": "object",
+            "description": "Tag data object (e.g. {\"name\": \"My Tag\", \"color\": \"light-green\"})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_TAG",
+      "target": "src.tools.tag_tools:create_tag",
+      "description": "Create a new tag in an Asana workspace. Use when you need to create a tag for categorizing tasks. Tags help organize and filter tasks across projects but are not automatically applied to any tasks. The data object must include workspace GID and name, and can optionally include color.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Tag data object, e.g. {\"workspace\": \"GID\", \"name\": \"My Tag\", \"color\": \"light-green\"}. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES."
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "GET_FAVORITES_FOR_USER",
+      "target": "src.tools.user_tools:get_favorites_for_user",
+      "description": "Get a user's favorites within a specified workspace. Returns favorites ordered as they appear in the user's Asana sidebar. resource_type can be portfolio, project, tag, task, user, or project_template. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES, or omit to use your default workspace.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "user_gid": {
+            "type": "string",
+            "description": "User identifier ('me', email, or user GID)"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "Workspace GID to fetch favorites from; omit to use default workspace"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          },
+          "resource_type": {
+            "type": "string",
+            "description": "Type of favorites to return: portfolio, project, tag, task, user, or project_template"
+          }
+        },
+        "required": [
+          "user_gid",
+          "resource_type"
+        ]
+      }
+    },
+    {
+      "id": "GET_MEMBERSHIP",
+      "target": "src.tools.membership_tools:get_membership",
+      "description": "Retrieve a single membership by its ID. Use this when you need to get details about a specific membership relationship between a user/team and a goal, project, portfolio, or custom field.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          },
+          "membership_gid": {
+            "type": "string",
+            "description": "GID of the membership"
+          }
+        },
+        "required": [
+          "membership_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_MEMBERSHIP",
+      "target": "src.tools.membership_tools:delete_membership",
+      "description": "Delete a membership by its GID. Use when you need to remove a user or team's access to a project, portfolio, goal, or custom field. Get membership_gid from GET_MEMBERSHIP, GET_MEMBERSHIPS, GET_PROJECT_MEMBERSHIPS_FOR_PROJECT, or GET_PORTFOLIO_MEMBERSHIPS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "membership_gid": { "type": "string", "description": "GID of the membership (from GET_MEMBERSHIP, GET_MEMBERSHIPS, GET_PROJECT_MEMBERSHIPS_FOR_PROJECT)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["membership_gid"]
+      }
+    },
+    {
+      "id": "GET_PROJECT_MEMBERSHIP",
+      "target": "src.tools.project_tools:get_project_membership",
+      "description": "Get a project membership by ID. Use when you need to retrieve details of a specific project membership.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          },
+          "project_membership_gid": {
+            "type": "string",
+            "description": "GID of the project membership"
+          }
+        },
+        "required": [
+          "project_membership_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PROJECT_MEMBERSHIPS_FOR_PROJECT",
+      "target": "src.tools.project_tools:get_project_memberships_for_project",
+      "description": "Get memberships from a specific project. Use when you need to see who has access to a project and their permission levels. Get project_gid from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS. Get user GID from GET_CURRENT_USER or GET_MULTIPLE_USERS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "type": "string",
+            "description": "Optional user GID to filter project memberships by"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          },
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PROJECTS_FOR_TASK",
+      "target": "src.tools.task_tools:get_projects_for_task",
+      "description": "Get all projects a task is in. Use when you need to retrieve project associations for a specific task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PROJECT_TEMPLATES_FOR_TEAM",
+      "target": "src.tools.project_tools:get_project_templates",
+      "description": "Get a team's project templates in Asana. Use when you need to retrieve project templates associated with a specific team. Get team_gid from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "team_gid"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_A_TASK",
+      "target": "src.tools.task_tools:create_task",
+      "description": "Creates a new Asana task; requires 'workspace', 'parent', or 'projects' for association. The data object needs workspace GID (from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES), project GIDs (from GET_MULTIPLE_PROJECTS), assignee GID (from GET_MULTIPLE_USERS), tag GIDs (from GET_TAGS), and follower GIDs (from GET_MULTIPLE_USERS). Example: {\"name\": \"Task\", \"workspace\": \"GID\", \"projects\": [\"GID\"], \"assignee\": \"GID\"}.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Task data object (e.g. {\"name\": \"My Task\", \"workspace\": \"GID\", \"projects\": [\"GID\"], \"assignee\": \"GID\", \"notes\": \"description\", \"due_on\": \"YYYY-MM-DD\"})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_ATTACHMENT_FOR_TASK",
+      "target": "src.tools.attachment_tools:create_attachment_for_task",
+      "description": "Upload an attachment to a task. Get parent_gid (task GID) from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. File: (1) External URL — {\"name\": \"doc.pdf\", \"url\": \"https://...\"}; (2) Workspace file — when WORKSPACE_PATH is set, {\"path\": \"doc.pdf\"} or {\"filename\": \"doc.pdf\"} (path must be inside workspace; no path traversal).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parent_gid": {
+            "type": "string",
+            "description": "GID of the task to attach the file to"
+          },
+          "file": {
+            "type": "object",
+            "description": "File object: external {\"name\", \"url\"}; or workspace file {\"path\" or \"filename\"} when WORKSPACE_PATH is set (relative path only, no path traversal)"
+          },
+          "resource_subtype": {
+            "type": "string",
+            "description": "Type of attachment (e.g. 'external')"
+          },
+          "connect_to_app": {
+            "type": "boolean",
+            "description": "Whether to connect the attachment to the app"
+          }
+        },
+        "required": [
+          "parent_gid",
+          "file"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_ATTACHMENT_FOR_OBJECT",
+      "target": "src.tools.attachment_tools:create_attachment_for_object",
+      "description": "Upload an attachment or link an external resource to a task or project. Use when you need to attach a file or external URL to a supported Asana object. Get parent GID from CREATE_A_TASK, GET_TASKS_FROM_A_PROJECT (task), or GET_A_PROJECT (project). For file: use file with path/filename (workspace) or url+name (external). resource_subtype: asana or external.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "type": "string",
+            "description": "GID of the task or project to attach to"
+          },
+          "file": {
+            "type": "object",
+            "description": "File object: {\"path\" or \"filename\"} for workspace file; {\"url\", \"name\"} for external link"
+          },
+          "url": {
+            "type": "string",
+            "description": "URL of external resource (alternative to file.url)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name for the attachment (required for external)"
+          },
+          "connect_to_app": {
+            "type": "boolean",
+            "description": "Whether to connect the attachment to the app (external, task only)"
+          },
+          "resource_subtype": {
+            "type": "string",
+            "description": "asana (file upload) or external (URL link)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["parent"]
+      }
+    },
+    {
+      "id": "CREATE_CUSTOM_FIELD",
+      "target": "src.tools.custom_field_tools:create_custom_field",
+      "description": "Create a new custom field in a workspace. The data object must include 'workspace' GID (from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES), 'name', and 'resource_subtype' (text, number, enum). For enum type, include 'enum_options'. Example: {\"workspace\": \"GID\", \"name\": \"Priority\", \"resource_subtype\": \"enum\", \"enum_options\": [{\"name\": \"High\"}, {\"name\": \"Low\"}]}.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Custom field data object (e.g. {\"workspace\": \"GID\", \"name\": \"Priority\", \"resource_subtype\": \"enum\", \"enum_options\": [{\"name\": \"High\"}, {\"name\": \"Low\"}]})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_ENUM_OPTION_FOR_CUSTOM_FIELD",
+      "target": "src.tools.custom_field_tools:create_enum_option_for_custom_field",
+      "description": "Create a new enum option for an existing enum-type custom field. Get custom_field_gid from GET_CUSTOM_FIELDS_FOR_WORKSPACE or CREATE_CUSTOM_FIELD (must be resource_subtype 'enum'). The data object should include 'name' and optionally 'color' (e.g. {\"name\": \"Critical\", \"color\": \"red\"}).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "custom_field_gid": {
+            "type": "string",
+            "description": "GID of the custom field to add the enum option to"
+          },
+          "data": {
+            "type": "object",
+            "description": "Enum option data object (e.g. {\"name\": \"Option Name\", \"color\": \"blue\"})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "custom_field_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_PROJECT_STATUS_UPDATE",
+      "target": "src.tools.project_tools:create_project_status_update",
+      "description": "Create a new status update on a project. Get project_gid from GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or CREATE_A_PROJECT. Provide title, text, status_type (on_track/at_risk/off_track/on_hold/complete), and color (GREEN/YELLOW/RED/BLUE/COMPLETE).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to post the status update on"
+          },
+          "title": {
+            "type": "string",
+            "description": "Title of the status update"
+          },
+          "text": {
+            "type": "string",
+            "description": "Body text of the status update"
+          },
+          "status_type": {
+            "type": "string",
+            "description": "Status type: on_track, at_risk, off_track, on_hold, or complete"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color: GREEN, YELLOW, RED, BLUE, or COMPLETE"
+          }
+        },
+        "required": [
+          "project_gid",
+          "title",
+          "text",
+          "status_type",
+          "color"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_SECTION_IN_PROJECT",
+      "target": "src.tools.project_tools:create_section_in_project",
+      "description": "Creates a new SECTION (not a task) in a project. Sections are organizational containers (e.g. 'To Do', 'In Progress', 'Done'). IMPORTANT: This creates SECTIONS only, NOT tasks. Get project_gid from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS. Get insert_before/insert_after section GIDs from GET_SECTIONS_IN_PROJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to create the section in"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the section"
+          },
+          "insert_before": {
+            "type": "string",
+            "description": "GID of an existing section to insert before"
+          },
+          "insert_after": {
+            "type": "string",
+            "description": "GID of an existing section to insert after"
+          }
+        },
+        "required": [
+          "project_gid",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "INSERT_SECTION_FOR_PROJECT",
+      "target": "src.tools.project_tools:insert_section_for_project",
+      "description": "Move or reorder an existing section within a project by positioning it before or after another section. Use when you need to change the order of sections in a project. Get project_gid from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM. Get section GIDs (section, before_section, after_section) from GET_SECTIONS_IN_PROJECT. Note: This only moves sections; to create new ones, use CREATE_SECTION_IN_PROJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project containing the sections"
+          },
+          "data": {
+            "type": "object",
+            "description": "Insert payload: must include the section GID to move and either before_section or after_section (section GIDs from GET_SECTIONS_IN_PROJECT). See Asana insert section API for full payload shape."
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["project_gid", "data"]
+      }
+    },
+    {
+      "id": "CREATE_SUBTASK",
+      "target": "src.tools.task_tools:create_subtask",
+      "description": "Creates a new subtask under an existing parent task; due_on and due_at are mutually exclusive. Get task_gid (parent) from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get assignee GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get follower GIDs from GET_MULTIPLE_USERS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the parent task"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the subtask"
+          },
+          "assignee": {
+            "type": "string",
+            "description": "GID of the user to assign the subtask to"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Description/notes for the subtask"
+          },
+          "due_on": {
+            "type": "string",
+            "description": "Due date in YYYY-MM-DD format (mutually exclusive with due_at)"
+          },
+          "due_at": {
+            "type": "string",
+            "description": "Due date and time in ISO 8601 format (mutually exclusive with due_on)"
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "Whether the subtask is completed"
+          },
+          "followers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of user GIDs to add as followers"
+          }
+        },
+        "required": [
+          "task_gid",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_TASK_COMMENT",
+      "target": "src.tools.task_tools:create_task_comment",
+      "description": "Adds a new text comment (story) to an existing Asana task, appearing in its activity feed. Get task_id from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_id": {
+            "type": "string",
+            "description": "GID of the task to comment on"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text content of the comment"
+          }
+        },
+        "required": [
+          "task_id",
+          "text"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_TEAM",
+      "target": "src.tools.team_tools:create_team",
+      "description": "Create a new team in an Asana workspace. The data object must include 'name' and 'organization' (workspace GID). Get workspace/organization GID from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES. Example: {\"name\": \"Engineering\", \"organization\": \"WORKSPACE_GID\"}.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Team data object (e.g. {\"name\": \"Engineering\", \"organization\": \"WORKSPACE_GID\", \"description\": \"The engineering team\"})"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "ADD_FOLLOWERS_TO_TASK",
+      "target": "src.tools.task_tools:add_followers_to_task",
+      "description": "Add followers to a task in Asana. This will notify them of updates to the task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get follower user GIDs from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "followers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of user GIDs to add as followers"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid",
+          "followers"
+        ]
+      }
+    },
+    {
+      "id": "ADD_PROJECT_FOR_TASK",
+      "target": "src.tools.task_tools:add_project_for_task",
+      "description": "Add a project to a task (associate the task with a project). Optionally position the task using section, insert_before, or insert_after. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get project GID from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM. Get section GID from GET_SECTIONS_IN_PROJECT. Get insert_before/insert_after task GIDs from GET_TASKS_FROM_A_PROJECT or GET_TASKS_FROM_A_SECTION.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "project": {
+            "type": "string",
+            "description": "GID of the project to add (from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, etc.)"
+          },
+          "section": {
+            "type": "string",
+            "description": "Section GID (from GET_SECTIONS_IN_PROJECT) to add task to"
+          },
+          "insert_before": {
+            "type": "string",
+            "description": "Task GID to insert before (from GET_TASKS_FROM_A_PROJECT or GET_TASKS_FROM_A_SECTION)"
+          },
+          "insert_after": {
+            "type": "string",
+            "description": "Task GID to insert after"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["task_gid", "project"]
+      }
+    },
+    {
+      "id": "REMOVE_PROJECT_FROM_TASK",
+      "target": "src.tools.task_tools:remove_project_from_task",
+      "description": "Remove a project from a task in Asana. Use this when you need to disassociate a task from a specific project while keeping the task itself. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get project GID from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "project": {
+            "type": "string",
+            "description": "GID of the project to remove (from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, etc.)"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["task_gid", "project"]
+      }
+    },
+    {
+      "id": "SET_PARENT_FOR_TASK",
+      "target": "src.tools.task_tools:set_parent_for_task",
+      "description": "Set the parent of a task (make it a subtask of another task) or remove the parent. Omit parent to remove parent. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get parent from GET_MULTIPLE_TASKS. Get insert_before/insert_after from GET_TASKS_FROM_A_PROJECT (sibling subtask GIDs).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": { "type": "string", "description": "GID of the task (from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, CREATE_A_TASK)" },
+          "parent": { "type": "string", "description": "GID of the new parent task (omit or null to remove parent; from GET_MULTIPLE_TASKS)" },
+          "insert_before": { "type": "string", "description": "GID of sibling subtask to insert before (from GET_TASKS_FROM_A_PROJECT)" },
+          "insert_after": { "type": "string", "description": "GID of sibling subtask to insert after" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["task_gid"]
+      }
+    },
+    {
+      "id": "CREATE_PORTFOLIO",
+      "target": "src.tools.portfolio_tools:create_portfolio",
+      "description": "Create a new portfolio in an Asana workspace. Get workspace GID from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES. Returns the portfolio GID which can be used with ADD_ITEM_TO_PORTFOLIO.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the portfolio"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color of the portfolio (e.g. dark-blue, light-green, dark-purple, none)"
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Whether the portfolio is public"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "GET_PORTFOLIOS",
+      "target": "src.tools.portfolio_tools:get_portfolios",
+      "description": "Retrieve multiple portfolios within a workspace, filtered by owner. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get owner GID from GET_CURRENT_USER or use 'me'. Returns portfolio GIDs needed by GET_PORTFOLIO, GET_PORTFOLIO_ITEMS, ADD_ITEM_TO_PORTFOLIO.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "owner": {
+            "type": "string",
+            "description": "GID of the owner (user GID or 'me' for current user)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "owner"
+        ]
+      }
+    },
+    {
+      "id": "ADD_ITEM_TO_PORTFOLIO",
+      "target": "src.tools.portfolio_tools:add_item_to_portfolio",
+      "description": "Add a project (or other supported item) to an Asana portfolio. Get portfolio_gid from GET_PORTFOLIOS or CREATE_PORTFOLIO. Get item GID (project) from GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or CREATE_A_PROJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "portfolio_gid": {
+            "type": "string",
+            "description": "GID of the portfolio"
+          },
+          "item": {
+            "type": "string",
+            "description": "GID of the project or item to add"
+          },
+          "insert_before": {
+            "type": "string",
+            "description": "GID of an item to insert before"
+          },
+          "insert_after": {
+            "type": "string",
+            "description": "GID of an item to insert after"
+          }
+        },
+        "required": [
+          "portfolio_gid",
+          "item"
+        ]
+      }
+    },
+    {
+      "id": "GET_TIME_PERIODS",
+      "target": "src.tools.goal_tools:get_time_periods",
+      "description": "Retrieve time periods (quarters, fiscal years, etc.) for a workspace. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Returns time_period GIDs needed by CREATE_GOAL and GET_GOALS. Use opt_fields=['display_name','start_on','end_on','period'] for full details.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields (e.g. display_name, start_on, end_on, period)"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_TIME_PERIOD",
+      "target": "src.tools.goal_tools:get_time_period",
+      "description": "Retrieve the full record for a single time period by its GID. Use when you need detailed information about a specific time period, including start/end dates, display name, and parent period. Get time_period_gid from GET_TIME_PERIODS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "time_period_gid": {
+            "type": "string",
+            "description": "GID of the time period"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["time_period_gid"]
+      }
+    },
+    {
+      "id": "CREATE_GOAL",
+      "target": "src.tools.goal_tools:create_goal",
+      "description": "Create a new goal in an Asana workspace. Requires a time_period. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get time_period_gid from GET_TIME_PERIODS. Get owner GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get team GID from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the goal"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "time_period_gid": {
+            "type": "string",
+            "description": "GID of a time period (e.g. a quarter or fiscal year)"
+          },
+          "due_on": {
+            "type": "string",
+            "description": "Due date of the goal in YYYY-MM-DD format"
+          },
+          "start_on": {
+            "type": "string",
+            "description": "Start date of the goal in YYYY-MM-DD format"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-form text description of the goal"
+          },
+          "owner": {
+            "type": "string",
+            "description": "GID of the user who owns the goal"
+          },
+          "liked": {
+            "type": "boolean",
+            "description": "Whether the goal is liked by the current user"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of a team to associate with the goal"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "name",
+          "time_period_gid"
+        ]
+      }
+    },
+    {
+      "id": "ADD_SUPPORTING_RELATIONSHIP",
+      "target": "src.tools.goal_tools:add_supporting_relationship",
+      "description": "Add a supporting relationship to a goal. Links a project, task, portfolio, or another goal as a supporting resource. Get goal_gid from GET_GOALS or CREATE_GOAL. The data object needs 'supporting_resource' GID (from GET_MULTIPLE_PROJECTS, GET_MULTIPLE_TASKS, GET_PORTFOLIOS, or GET_GOALS) and optionally 'contribution_weight' (0 or 1).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "goal_gid": {
+            "type": "string",
+            "description": "GID of the goal"
+          },
+          "data": {
+            "type": "object",
+            "description": "Relationship data (e.g. {\"supporting_resource\": \"PROJECT_GID\", \"contribution_weight\": 1})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "goal_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "ADD_TAG_TO_TASK",
+      "target": "src.tools.task_tools:add_tag_to_task",
+      "description": "Add an existing tag to a task. Tags cannot be added via Update Task, so this dedicated endpoint is required. Get task_gid from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT. Get tag_gid from GET_TAGS or CREATE_A_TAG_IN_A_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "tag_gid": {
+            "type": "string",
+            "description": "GID of the tag to add"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Comma-separated list of optional fields"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid",
+          "tag_gid"
+        ]
+      }
+    },
+    {
+      "id": "ADD_TASK_DEPENDENCIES",
+      "target": "src.tools.task_tools:add_task_dependencies",
+      "description": "Add dependency relationships to a task. Marks one or more tasks as prerequisites that must be completed first. Get task_gid from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT. Get dependency task GIDs from the same tools.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to add dependencies to"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of task GIDs to add as dependencies"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Comma-separated list of optional fields"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid",
+          "dependencies"
+        ]
+      }
+    },
+    {
+      "id": "GET_MEMBERSHIPS",
+      "target": "src.tools.membership_tools:get_memberships",
+      "description": "Retrieve memberships for goals, projects, portfolios, or custom fields. Get parent GID from GET_GOALS, GET_MULTIPLE_PROJECTS, GET_PORTFOLIOS, or GET_CUSTOM_FIELDS_FOR_WORKSPACE. Get member GID from GET_CURRENT_USER or GET_MULTIPLE_USERS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "type": "string",
+            "description": "GID of the parent resource (goal, project, portfolio, or custom field)"
+          },
+          "member": {
+            "type": "string",
+            "description": "GID of the member (user or team)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Comma-separated list of optional fields to include"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "CREATE_MEMBERSHIP",
+      "target": "src.tools.membership_tools:create_membership",
+      "description": "Create a membership by adding a user or team to a project, goal, or portfolio. Use when you need to grant access to an Asana resource. Get member GID (user or team) from GET_MULTIPLE_USERS, GET_USERS_FOR_WORKSPACE, or GET_TEAMS_IN_WORKSPACE. Get parent GID (project, goal, or portfolio) from GET_A_PROJECT, GET_GOALS, or GET_PORTFOLIO.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "member": {
+            "type": "string",
+            "description": "User or team GID (from GET_MULTIPLE_USERS, GET_USERS_FOR_WORKSPACE, GET_TEAMS_IN_WORKSPACE)"
+          },
+          "parent": {
+            "type": "string",
+            "description": "Project, goal, or portfolio GID (from GET_A_PROJECT, GET_GOALS, GET_PORTFOLIO)"
+          },
+          "role": {
+            "type": "string",
+            "description": "Optional role for the membership"
+          },
+          "access_level": {
+            "type": "string",
+            "description": "Optional access level (e.g. admin, editor, commenter, viewer)"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["member", "parent"]
+      }
+    },
+    {
+      "id": "GET_MULTIPLE_TASKS",
+      "target": "src.tools.task_tools:get_multiple_tasks",
+      "description": "Retrieves a list of tasks, allowing filtering by assignee (requires workspace), project, section, tag, completed_since, and modified_since. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get assignee GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get project GID from GET_MULTIPLE_PROJECTS. Get section GID from GET_SECTIONS_IN_PROJECT. Get tag GID from GET_TAGS. Returns task GIDs needed by many other tools.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "assignee": {
+            "type": "string",
+            "description": "GID of the assignee (requires workspace)"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace (requires assignee)"
+          },
+          "project": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "section": {
+            "type": "string",
+            "description": "GID of the section"
+          },
+          "tag": {
+            "type": "string",
+            "description": "GID of the tag"
+          },
+          "user_task_list": {
+            "type": "string",
+            "description": "GID of the user task list"
+          },
+          "completed_since": {
+            "type": "string",
+            "description": "Only return tasks completed since this date (ISO 8601)"
+          },
+          "modified_since": {
+            "type": "string",
+            "description": "Only return tasks modified since this date (ISO 8601)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_MULTIPLE_USERS",
+      "target": "src.tools.user_tools:get_multiple_users",
+      "description": "Returns a list of users in an Asana workspace or organization. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get team GID from GET_TEAMS_IN_WORKSPACE. Returns user GIDs needed by tools requiring assignee, owner, or follower parameters.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_MULTIPLE_WORKSPACES",
+      "target": "src.tools.workspace_tools:get_multiple_workspaces",
+      "description": "Retrieves all workspaces accessible by the authenticated user. No required parameters. Returns workspace GIDs needed by most other tools. Alternative: GET_CURRENT_USER also returns workspace GIDs in the workspaces field.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "ADD_USER_FOR_WORKSPACE",
+      "target": "src.tools.workspace_tools:add_user_for_workspace",
+      "description": "Add a user to a workspace or organization. user can be a user GID, an email address, or \"me\" for the current user. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES, or omit it to use your default workspace. Get user GID from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace (from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES)"
+          },
+          "user": {
+            "type": "string",
+            "description": "User GID, email, or \"me\" for current user (from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["user"]
+      }
+    },
+    {
+      "id": "REMOVE_USER_FOR_WORKSPACE",
+      "target": "src.tools.workspace_tools:remove_user_for_workspace",
+      "description": "Remove a user from a workspace or organization. Omit workspace_gid to use default workspace; omit user to use current user. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES. Get user from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE (user can be GID, email, or \"me\").",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace (omit to use default workspace; from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES)"
+          },
+          "user": {
+            "type": "string",
+            "description": "User GID, email, or \"me\" (omit to use current user; from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        }
+      }
+    },
+    {
+      "id": "GET_PORTFOLIO",
+      "target": "src.tools.portfolio_tools:get_portfolio",
+      "description": "Retrieve the full record for a single portfolio by its GID. Get portfolio_gid from GET_PORTFOLIOS or CREATE_PORTFOLIO.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "portfolio_gid": {
+            "type": "string",
+            "description": "GID of the portfolio"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "portfolio_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PORTFOLIO_ITEMS",
+      "target": "src.tools.portfolio_tools:get_portfolio_items",
+      "description": "Retrieve items (projects or sub-portfolios) inside a portfolio. Get portfolio_gid from GET_PORTFOLIOS or CREATE_PORTFOLIO.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "portfolio_gid": {
+            "type": "string",
+            "description": "GID of the portfolio"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "portfolio_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PORTFOLIO_MEMBERSHIPS",
+      "target": "src.tools.membership_tools:get_portfolio_memberships",
+      "description": "Retrieve portfolio memberships. Get portfolio GID from GET_PORTFOLIOS or CREATE_PORTFOLIO. Get user GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "portfolio": {
+            "type": "string",
+            "description": "GID of the portfolio"
+          },
+          "user": {
+            "type": "string",
+            "description": "GID of the user"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_CUSTOM_FIELD",
+      "target": "src.tools.custom_field_tools:get_custom_field",
+      "description": "Get a single custom field by its GID. Get custom_field_gid from GET_CUSTOM_FIELDS_FOR_WORKSPACE or CREATE_CUSTOM_FIELD.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "custom_field_gid": {
+            "type": "string",
+            "description": "GID of the custom field to retrieve"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "custom_field_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_CUSTOM_FIELDS_FOR_WORKSPACE",
+      "target": "src.tools.custom_field_tools:get_custom_fields_for_workspace",
+      "description": "Get all custom fields in a workspace. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Returns custom_field GIDs needed by GET_CUSTOM_FIELD and CREATE_ENUM_OPTION_FOR_CUSTOM_FIELD.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_EVENTS",
+      "target": "src.tools.event_tools:get_events",
+      "description": "Retrieve events on a resource to monitor changes. TWO-STEP FLOW: (1) First call without sync token returns a sync token (no events yet). (2) Second call with the sync token returns only new events since that token. Get resource_gid from any tool that returns a GID (e.g. task GID from GET_MULTIPLE_TASKS, project GID from GET_MULTIPLE_PROJECTS, tag GID from GET_TAGS).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "resource_gid": {
+            "type": "string",
+            "description": "GID of the resource to get events for"
+          },
+          "sync": {
+            "type": "string",
+            "description": "Sync token from a previous events request (omit for initial request)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "resource_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_GOAL",
+      "target": "src.tools.goal_tools:get_goal",
+      "description": "Retrieve the full record for a single goal by its GID. Get goal_gid from GET_GOALS or CREATE_GOAL.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "goal_gid": {
+            "type": "string",
+            "description": "GID of the goal to retrieve"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Comma-separated list of optional fields to include"
+          }
+        },
+        "required": [
+          "goal_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_GOALS",
+      "target": "src.tools.goal_tools:get_goals",
+      "description": "Retrieve multiple goals. Requires exactly one scope parameter. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get team GID from GET_TEAMS_IN_WORKSPACE. Get portfolio GID from GET_PORTFOLIOS. Get project GID from GET_MULTIPLE_PROJECTS. Get time_period GID from GET_TIME_PERIODS. Returns goal GIDs needed by GET_GOAL, GET_GOAL_RELATIONSHIPS, ADD_SUPPORTING_RELATIONSHIP.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "portfolio": {
+            "type": "string",
+            "description": "GID of the portfolio"
+          },
+          "project": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "is_workspace_level": {
+            "type": "boolean",
+            "description": "Filter for workspace-level goals"
+          },
+          "time_period": {
+            "type": "string",
+            "description": "GID of the time period to filter by"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Filter for archived goals"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_PROJECT_MEMBERSHIPS",
+      "target": "src.tools.project_tools:get_project_memberships",
+      "description": "Retrieve memberships from a project. Get project GID from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS. Get user GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "user": {
+            "type": "string",
+            "description": "GID of the user"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_PROJECTS_FOR_TEAM",
+      "target": "src.tools.project_tools:get_projects_for_team",
+      "description": "Get a list of projects for a specific team. Get team_gid from GET_TEAMS_IN_WORKSPACE or CREATE_TEAM.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Filter for archived projects"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "team_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PROJECT_STATUS",
+      "target": "src.tools.project_tools:get_project_status",
+      "description": "Retrieve the full record for a single project status by its GID. Get project_status_gid from GET_PROJECT_STATUS_UPDATES or CREATE_PROJECT_STATUS_UPDATE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_status_gid": {
+            "type": "string",
+            "description": "GID of the project status"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "project_status_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_PROJECT_STATUS",
+      "target": "src.tools.project_tools:delete_project_status",
+      "description": "Delete a project status by its GID. Use when you need to remove a specific project status from Asana. Get project_status_gid from GET_PROJECT_STATUS or project status lists.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_status_gid": { "type": "string", "description": "GID of the project status (from GET_PROJECT_STATUS)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["project_status_gid"]
+      }
+    },
+    {
+      "id": "GET_TASK_COUNTS_FOR_PROJECT",
+      "target": "src.tools.project_tools:get_task_counts_for_project",
+      "description": "Get task count statistics for a project. Returns num_tasks, num_incomplete_tasks, and num_completed_tasks by default; pass opt_fields to request different fields. Get project_gid from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": { "type": "string", "description": "GID of the project" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Fields to return (e.g. num_tasks, num_incomplete_tasks, num_completed_tasks)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["project_gid"]
+      }
+    },
+    {
+      "id": "GET_PROJECT_STATUS_UPDATES",
+      "target": "src.tools.project_tools:get_project_status_updates",
+      "description": "Get status updates for a specific project. Get project_gid from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS. Returns status GIDs needed by GET_PROJECT_STATUS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_PROJECT_TEMPLATES",
+      "target": "src.tools.project_tools:get_project_templates",
+      "description": "Retrieve multiple project templates in a workspace or team. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get team_gid from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_A_PROJECT",
+      "target": "src.tools.project_tools:get_a_project",
+      "description": "Retrieves a specific Asana project by its project_gid; does not return tasks within the project. Get project_gid from GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to retrieve"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "ADD_FOLLOWERS_TO_PROJECT",
+      "target": "src.tools.project_tools:add_followers_to_project",
+      "description": "Add one or more users as followers to a project. Followers receive notifications when tasks are added. Get project_gid from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM. Get user GIDs for followers from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "followers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "User GIDs to add as followers (from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["project_gid", "followers"]
+      }
+    },
+    {
+      "id": "REMOVE_FOLLOWERS_FOR_PROJECT",
+      "target": "src.tools.project_tools:remove_followers_for_project",
+      "description": "Remove one or more users as followers from a project. Use when you need to stop users from receiving notifications about a project's activity. Get project_gid from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM. Get follower user GIDs from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "followers": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "User GIDs to remove as followers (from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["project_gid", "followers"]
+      }
+    },
+    {
+      "id": "ADD_MEMBERS_FOR_PROJECT",
+      "target": "src.tools.project_tools:add_members_for_project",
+      "description": "Add one or more users as members to a project. Members can view and contribute. Get project_gid from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM. Get user GIDs for members from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "members": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "User GIDs to add as members (from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["project_gid", "members"]
+      }
+    },
+    {
+      "id": "REMOVE_MEMBERS_FOR_PROJECT",
+      "target": "src.tools.project_tools:remove_members_for_project",
+      "description": "Remove one or more users as members from a project. Use when you need to revoke project membership while leaving the project itself intact. Get project_gid from GET_A_PROJECT, GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_PROJECTS_FOR_TEAM. Get user GIDs for members from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "members": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "User GIDs to remove as members (from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["project_gid", "members"]
+      }
+    },
+    {
+      "id": "GET_TYPEAHEAD_OBJECTS",
+      "target": "src.tools.workspace_tools:get_typeahead_objects",
+      "description": "Search for objects in a workspace via typeahead. Useful for auto-completion and quick lookups by name. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. resource_type is REQUIRED (task, project, user, team, tag, portfolio, goal, custom_field, project_template).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "resource_type": {
+            "type": "string",
+            "enum": [
+              "custom_field",
+              "goal",
+              "project",
+              "project_template",
+              "portfolio",
+              "tag",
+              "task",
+              "team",
+              "user"
+            ],
+            "description": "Type of resource to search for (REQUIRED)"
+          },
+          "query": {
+            "type": "string",
+            "description": "Search string for typeahead"
+          },
+          "count": {
+            "type": "integer",
+            "description": "Max number of results to return"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "resource_type"
+        ]
+      }
+    },
+    {
+      "id": "GET_USERS_FOR_TEAM",
+      "target": "src.tools.user_tools:get_users_for_team",
+      "description": "Get users in a team. Get team_gid from GET_TEAMS_IN_WORKSPACE or CREATE_TEAM. Returns user GIDs.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "team_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_USERS_FOR_WORKSPACE",
+      "target": "src.tools.user_tools:get_users_for_workspace",
+      "description": "Get users in a workspace or organization. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Returns user GIDs.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_WORKSPACE",
+      "target": "src.tools.workspace_tools:get_workspace",
+      "description": "Retrieve details of a specific workspace by its GID. Get workspace_gid from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_WORKSPACE_MEMBERSHIPS",
+      "target": "src.tools.workspace_tools:get_workspace_memberships",
+      "description": "Retrieve the workspace memberships for a specific workspace. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get user GID from GET_CURRENT_USER or GET_MULTIPLE_USERS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "user": {
+            "type": "string",
+            "description": "GID of the user to filter by"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_WORKSPACE_MEMBERSHIP",
+      "target": "src.tools.workspace_tools:get_workspace_membership",
+      "description": "Retrieve a specific workspace membership by its GID. Use when you need to get details about a user's membership in a workspace. Get workspace_membership_gid from GET_WORKSPACE_MEMBERSHIPS or GET_WORKSPACE_MEMBERSHIPS_FOR_USER.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_membership_gid": {
+            "type": "string",
+            "description": "GID of the workspace membership"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["workspace_membership_gid"]
+      }
+    },
+    {
+      "id": "GET_WORKSPACE_MEMBERSHIPS_FOR_USER",
+      "target": "src.tools.workspace_tools:get_workspace_memberships_for_user",
+      "description": "Retrieve workspace memberships for a specific user. Use when you need to list all workspaces a user is a member of. Omit user_gid to use the current user. Get user_gid from GET_CURRENT_USER or GET_MULTIPLE_USERS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_gid": {
+            "type": "string",
+            "description": "GID of the user (omit to use current user)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        }
+      }
+    },
+    {
+      "id": "GET_WORKSPACE_PROJECTS",
+      "target": "src.tools.workspace_tools:get_workspace_projects",
+      "description": "Retrieve all projects in a workspace. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Returns project GIDs needed by many other tools.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_expand": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of fields to expand in the response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_TASKS_FROM_A_PROJECT",
+      "target": "src.tools.task_tools:get_tasks_from_a_project",
+      "description": "Retrieves tasks from a specified project, with optional completion status filter. Get project_gid from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS. Returns task GIDs needed by many other tools.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "completed_since": {
+            "type": "string",
+            "description": "Only return tasks completed since this date (ISO 8601)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_TASKS_FROM_A_SECTION",
+      "target": "src.tools.task_tools:get_tasks_from_a_section",
+      "description": "Retrieve tasks in a specific section (column/header). Board view only feature. Get section_gid from GET_SECTIONS_IN_PROJECT. Returns task GIDs.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "section_gid": {
+            "type": "string",
+            "description": "GID of the section"
+          },
+          "completed_since": {
+            "type": "string",
+            "description": "Only return tasks completed since this date (ISO 8601)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "section_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_TASKS_FOR_TAG",
+      "target": "src.tools.task_tools:get_tasks_for_tag",
+      "description": "Retrieve tasks associated with a specific tag. Get tag_gid from GET_TAGS or GET_TAGS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_gid": { "type": "string", "description": "GID of the tag" },
+          "limit": { "type": "integer", "description": "Pagination limit" },
+          "offset": { "type": "string", "description": "Pagination offset token" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["tag_gid"]
+      }
+    },
+    {
+      "id": "GET_TASKS_FOR_USER_TASK_LIST",
+      "target": "src.tools.task_tools:get_tasks_for_user_task_list",
+      "description": "Retrieve tasks from a user task list. Get user_task_list_gid from GET_USER_TASK_LIST_FOR_USER (user + workspace) or GET_A_USER_TASK_LIST.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_task_list_gid": { "type": "string", "description": "GID of the user task list" },
+          "limit": { "type": "integer", "description": "Pagination limit" },
+          "offset": { "type": "string", "description": "Pagination offset token" },
+          "completed_since": { "type": "string", "description": "Only return tasks completed since this date (ISO 8601)" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["user_task_list_gid"]
+      }
+    },
+    {
+      "id": "GET_TASK_SUBTASKS",
+      "target": "src.tools.task_tools:get_task_subtasks",
+      "description": "Retrieve subtasks of a task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Returns subtask GIDs.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the parent task"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "task_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_TEAM",
+      "target": "src.tools.team_tools:get_team",
+      "description": "Retrieve details of a specific team by its GID. Get team_gid from GET_TEAMS_IN_WORKSPACE or CREATE_TEAM.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "team_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_TEAM_MEMBERSHIP",
+      "target": "src.tools.team_tools:get_team_membership",
+      "description": "Retrieve a complete team membership record by its GID. Use when you need to fetch details about a specific team membership in Asana. Get team_membership_gid from GET_TEAM_MEMBERSHIPS or GET_TEAM_MEMBERSHIPS_FOR_TEAM.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_membership_gid": {
+            "type": "string",
+            "description": "GID of the team membership (from GET_TEAM_MEMBERSHIPS or GET_TEAM_MEMBERSHIPS_FOR_TEAM)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["team_membership_gid"]
+      }
+    },
+    {
+      "id": "GET_TEAM_MEMBERSHIPS",
+      "target": "src.tools.team_tools:get_team_memberships",
+      "description": "Retrieve compact team membership records. Get team GID from GET_TEAMS_IN_WORKSPACE. Get user GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "user": {
+            "type": "string",
+            "description": "GID of the user"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "ADD_USER_FOR_TEAM",
+      "target": "src.tools.team_tools:add_user_for_team",
+      "description": "Add a user to a team in Asana. Use when you need to add a user to a specific team. user can be user GID, email, or \"me\" for the current user. Get team_gid from GET_TEAMS_IN_WORKSPACE. Get user from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team (from GET_TEAMS_IN_WORKSPACE)"
+          },
+          "user": {
+            "type": "string",
+            "description": "User GID, email, or \"me\" for current user (from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["team_gid", "user"]
+      }
+    },
+    {
+      "id": "GET_TEAM_MEMBERSHIPS_FOR_TEAM",
+      "target": "src.tools.team_tools:get_team_memberships",
+      "description": "Get memberships from a specific team. Use when you need to retrieve the list of users who are members of a particular team, including membership details such as admin status and guest status. Get team (team_gid) from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team": {
+            "type": "string",
+            "description": "GID of the team / team_gid (from GET_TEAMS_IN_WORKSPACE)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["team"]
+      }
+    },
+    {
+      "id": "REMOVE_USER_FOR_TEAM",
+      "target": "src.tools.team_tools:remove_user_for_team",
+      "description": "Remove a user from a team. Use when you need to revoke team membership for a specific user. Get team_gid from GET_TEAMS_IN_WORKSPACE or GET_TEAM. user can be a user GID, an email address, or \"me\" for the current user.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team"
+          },
+          "user": {
+            "type": "string",
+            "description": "User GID, email, or \"me\" for current user (from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_USERS_FOR_WORKSPACE)"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["team_gid", "user"]
+      }
+    },
+    {
+      "id": "GET_SECTION",
+      "target": "src.tools.project_tools:get_section",
+      "description": "Retrieve the full record for a single section by its GID. Get section_gid from GET_SECTIONS_IN_PROJECT or CREATE_SECTION_IN_PROJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "section_gid": {
+            "type": "string",
+            "description": "GID of the section"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "section_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_SECTION",
+      "target": "src.tools.project_tools:delete_section",
+      "description": "Delete a section by its GID. Use when you need to permanently remove a section from a project. Section must be empty; last section in a project cannot be deleted. Get section_gid from GET_SECTIONS_IN_PROJECT or GET_SECTION.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "section_gid": { "type": "string", "description": "GID of the section (from GET_SECTIONS_IN_PROJECT, GET_SECTION)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["section_gid"]
+      }
+    },
+    {
+      "id": "UPDATE_SECTION",
+      "target": "src.tools.project_tools:update_section",
+      "description": "Update a section's name or position within a project. Use when you need to rename a section or reorder by specifying insert_before or insert_after. Get section_gid from GET_SECTIONS_IN_PROJECT or GET_SECTION. Get insert_before/insert_after from GET_SECTIONS_IN_PROJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "section_gid": { "type": "string", "description": "GID of the section (from GET_SECTIONS_IN_PROJECT, GET_SECTION)" },
+          "name": { "type": "string", "description": "New name for the section" },
+          "insert_before": { "type": "string", "description": "Section GID to insert before (from GET_SECTIONS_IN_PROJECT)" },
+          "insert_after": { "type": "string", "description": "Section GID to insert after" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["section_gid"]
+      }
+    },
+    {
+      "id": "GET_SECTIONS_IN_PROJECT",
+      "target": "src.tools.project_tools:get_sections_in_project",
+      "description": "Returns compact records for all sections in a project. Get project_gid from GET_MULTIPLE_PROJECTS or GET_WORKSPACE_PROJECTS. Returns section GIDs needed by GET_SECTION, GET_TASKS_FROM_A_SECTION, ADD_TASK_TO_SECTION, and CREATE_SECTION_IN_PROJECT (for insert_before/after).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_REACTIONS_ON_OBJECT",
+      "target": "src.tools.reaction_tools:get_reactions_on_object",
+      "description": "Get reactions with a specific emoji base character on an object. Use when you need to retrieve user reactions (emoji responses) on a status update or story. Get target GID from GET_STATUS (status_update_gid) or GET_STORY.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "limit": { "type": "integer", "description": "Pagination limit" },
+          "offset": { "type": "string", "description": "Pagination offset token" },
+          "target": { "type": "string", "description": "GID of the target object (status update or story)" },
+          "emoji_base": { "type": "string", "description": "Emoji base character to filter reactions by (e.g. thumbsup)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["target", "emoji_base"]
+      }
+    },
+    {
+      "id": "GET_STATUS_UPDATES",
+      "target": "src.tools.project_tools:get_status_updates",
+      "description": "Retrieve status updates from a project, portfolio, or goal. Get parent GID from GET_MULTIPLE_PROJECTS (project), GET_PORTFOLIOS (portfolio), or GET_GOALS (goal). Returns status update GIDs.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "type": "string",
+            "description": "GID of the parent object (project, portfolio, or goal)"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "parent"
+        ]
+      }
+    },
+    {
+      "id": "GET_STATUS",
+      "target": "src.tools.project_tools:get_status",
+      "description": "Retrieve the full record for a single status update by its GID. Get status_update_gid from GET_STATUS_UPDATES or CREATE_STATUS_FOR_OBJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "status_update_gid": { "type": "string", "description": "GID of the status update" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["status_update_gid"]
+      }
+    },
+    {
+      "id": "DELETE_STATUS_UPDATE",
+      "target": "src.tools.project_tools:delete_status_update",
+      "description": "Delete a status update by its GID. Use when you need to remove a specific status update from Asana. Get status_update_gid from GET_PROJECT_STATUS_UPDATES or GET_STATUS_UPDATES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "status_update_gid": { "type": "string", "description": "GID of the status update (from GET_PROJECT_STATUS_UPDATES, GET_STATUS_UPDATES)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["status_update_gid"]
+      }
+    },
+    {
+      "id": "GET_STORIES_FOR_TASK",
+      "target": "src.tools.story_tools:get_stories_for_task",
+      "description": "Get stories (comments, status updates, activity history) for a task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Returns story GIDs needed by GET_STORY.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "task_gid"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_STORY_FOR_TASK",
+      "target": "src.tools.story_tools:create_story_for_task",
+      "description": "Create a comment story on a task. Use when you need to add a comment to a task as the authenticated user. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to comment on"
+          },
+          "text": {
+            "type": "string",
+            "description": "Comment text to add as a story"
+          },
+          "is_pinned": {
+            "type": "boolean",
+            "description": "Whether the story should be pinned on the task"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the story response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["task_gid", "text"]
+      }
+    },
+    {
+      "id": "GET_STORY",
+      "target": "src.tools.story_tools:get_story",
+      "description": "Retrieve the complete record for a single story. Get story_gid from GET_STORIES_FOR_TASK or CREATE_TASK_COMMENT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "story_gid": {
+            "type": "string",
+            "description": "GID of the story"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "story_gid"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_STORY",
+      "target": "src.tools.story_tools:update_story",
+      "description": "Update a story on a task. Use when you need to modify text, html_text, or pinned status. Only comment stories can have text/html_text updated; only comment and attachment stories can be pinned. Get story_gid from GET_STORIES_FOR_TASK or GET_STORY.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "story_gid": { "type": "string", "description": "GID of the story (from GET_STORIES_FOR_TASK, GET_STORY)" },
+          "data": { "type": "object", "description": "Fields to update: text, html_text, and/or pinned (see Asana story update API)" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["story_gid", "data"]
+      }
+    },
+    {
+      "id": "DELETE_STORY",
+      "target": "src.tools.story_tools:delete_story",
+      "description": "Delete a story by its GID. Use when you need to remove a story (e.g. comment) from Asana. Only the user who created the story can delete it. Get story_gid from GET_STORIES_FOR_TASK or GET_STORY.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "story_gid": { "type": "string", "description": "GID of the story (from GET_STORIES_FOR_TASK, GET_STORY)" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["story_gid"]
+      }
+    },
+    {
+      "id": "GET_TAG",
+      "target": "src.tools.tag_tools:get_tag",
+      "description": "Get a single tag by its GID. Get tag_gid from GET_TAGS or CREATE_A_TAG_IN_A_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_gid": {
+            "type": "string",
+            "description": "GID of the tag"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "tag_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_TAGS",
+      "target": "src.tools.tag_tools:get_tags",
+      "description": "Get multiple tags in a workspace. Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Returns tag GIDs needed by GET_TAG, ADD_TAG_TO_TASK, and GET_MULTIPLE_TASKS (tag filter).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_TAGS_FOR_TASK",
+      "target": "src.tools.tag_tools:get_tags_for_task",
+      "description": "Get all tags associated with a specific task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": { "type": "string", "description": "GID of the task" },
+          "limit": { "type": "integer", "description": "Pagination limit" },
+          "offset": { "type": "string", "description": "Pagination offset token" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        },
+        "required": ["task_gid"]
+      }
+    },
+    {
+      "id": "GET_TAGS_FOR_WORKSPACE",
+      "target": "src.tools.tag_tools:get_tags_for_workspace",
+      "description": "Get all tags in a specific workspace. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES, or omit to use your default workspace.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": { "type": "string", "description": "GID of the workspace (omit to use default workspace)" },
+          "limit": { "type": "integer", "description": "Pagination limit" },
+          "offset": { "type": "string", "description": "Pagination offset token" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        }
+      }
+    },
+    {
+      "id": "GET_TASK_ATTACHMENTS",
+      "target": "src.tools.attachment_tools:get_task_attachments",
+      "description": "Get the list of attachments for a task or project. Get parent_gid (task) from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT. Get parent_gid (project) from GET_MULTIPLE_PROJECTS. Returns attachment GIDs needed by GET_ATTACHMENT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "parent_gid": {
+            "type": "string",
+            "description": "GID of the task or project"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          }
+        },
+        "required": [
+          "parent_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_A_TASK",
+      "target": "src.tools.task_tools:get_a_task",
+      "description": "Retrieves full details for a specified task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, GET_TASKS_FROM_A_SECTION, or CREATE_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to retrieve"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_ATTACHMENT",
+      "target": "src.tools.attachment_tools:get_attachment",
+      "description": "Get a single attachment by its GID. Get attachment_gid from GET_TASK_ATTACHMENTS or CREATE_ATTACHMENT_FOR_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "attachment_gid": {
+            "type": "string",
+            "description": "GID of the attachment to retrieve"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Comma-separated list of optional fields to include"
+          }
+        },
+        "required": [
+          "attachment_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_USER_TASK_LIST_FOR_USER",
+      "target": "src.tools.user_tools:get_user_task_list_for_user",
+      "description": "Get a user's My Tasks list for a workspace. Returns the user task list object including its gid. Use this to get user_task_list_gid for GET_TASKS_FOR_USER_TASK_LIST or GET_A_USER_TASK_LIST. user_gid and workspace optional (default to current user and default workspace). Get user_gid from GET_CURRENT_USER or GET_MULTIPLE_USERS; workspace from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_gid": {
+            "type": "string",
+            "description": "User GID (omit for current user; from GET_CURRENT_USER or GET_MULTIPLE_USERS)"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "Workspace GID (omit for default workspace; from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include (e.g. name, owner, workspace)"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        }
+      }
+    },
+    {
+      "id": "GET_A_USER_TASK_LIST",
+      "target": "src.tools.user_tools:get_a_user_task_list",
+      "description": "Retrieves a specific user's task list by its GID. Get user_task_list_gid from GET_USER_TASK_LIST_FOR_USER (user + workspace). Get workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_task_list_gid": {
+            "type": "string",
+            "description": "GID of the user task list to retrieve"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "user_task_list_gid"
+        ]
+      }
+    },
+    {
+      "id": "GET_USER_TASK_LIST",
+      "target": "src.tools.user_tools:get_a_user_task_list",
+      "description": "Get a single user task list by its GID. Get user_task_list_gid from GET_USER_TASK_LIST_FOR_USER (user + workspace). Get workspace from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "user_task_list_gid": {
+            "type": "string",
+            "description": "GID of the user task list"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "GID of the workspace"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["user_task_list_gid"]
+      }
+    },
+    {
+      "id": "GET_USER_FOR_WORKSPACE",
+      "target": "src.tools.user_tools:get_user_for_workspace",
+      "description": "Get a user in a workspace or organization by their GID. Omit workspace_gid to use default workspace; omit user_gid to use current user. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get user_gid from GET_MULTIPLE_USERS or GET_USERS_FOR_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace (omit to use default workspace)"
+          },
+          "user_gid": {
+            "type": "string",
+            "description": "GID of the user (omit to use current user)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        }
+      }
+    },
+    {
+      "id": "UPDATE_USER_FOR_WORKSPACE",
+      "target": "src.tools.user_tools:update_user_for_workspace",
+      "description": "Update a user in a workspace (e.g. user custom field values). workspace_gid and user_gid are optional (omit for default workspace and current user). You must give custom_fields: object with custom field GID as key and value to set. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES; user_gid from GET_CURRENT_USER or GET_MULTIPLE_USERS; custom field GIDs from GET_CUSTOM_FIELDS_FOR_WORKSPACE (use a user-type custom field). Value: string for text, number for number, enum option GID for dropdown.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": { "type": "string", "description": "GID of the workspace (omit to use default workspace; from GET_CURRENT_USER, GET_MULTIPLE_WORKSPACES)" },
+          "user_gid": { "type": "string", "description": "GID of the user (omit to use current user; from GET_CURRENT_USER, GET_MULTIPLE_USERS)" },
+          "custom_fields": { "type": "object", "description": "Required. Map of custom_field_gid to value. Key = custom field GID from GET_CUSTOM_FIELDS_FOR_WORKSPACE (must be a user custom field). Value = string (text), number, or enum option GID (dropdown). Example: {\"1213390201360126\": \"Some text\"}" },
+          "opt_fields": { "type": "array", "items": { "type": "string" }, "description": "Optional fields to include in response" },
+          "opt_pretty": { "type": "boolean", "description": "Pretty-print the JSON response" }
+        }
+      }
+    },
+    {
+      "id": "GET_TIME_TRACKING_ENTRIES",
+      "target": "src.tools.time_tracking_tools:get_time_tracking_entries",
+      "description": "Get multiple time tracking entries. Asana requires a date range (default: last 30 days) and at least one scope: task, user, portfolio, or attributable_to (project). If you omit all scope filters, the current user's entries are returned. Optional: workspace, entered_on_start_date, entered_on_end_date. Get GIDs from GET_MULTIPLE_WORKSPACES, GET_MULTIPLE_TASKS, GET_PORTFOLIOS, GET_MULTIPLE_USERS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task": {
+            "type": "string",
+            "description": "Task GID to filter by"
+          },
+          "user": {
+            "type": "string",
+            "description": "User GID to filter by"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "portfolio": {
+            "type": "string",
+            "description": "Portfolio GID to filter by"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "Workspace GID to filter by"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          },
+          "attributable_to": {
+            "type": "string",
+            "description": "Project GID the entry is attributed to"
+          },
+          "entered_on_end_date": {
+            "type": "string",
+            "description": "End date for entered_on filter (YYYY-MM-DD). Omit with entered_on_start_date to default to last 30 days."
+          },
+          "entered_on_start_date": {
+            "type": "string",
+            "description": "Start date for entered_on filter (YYYY-MM-DD). Omit with entered_on_end_date to default to last 30 days."
+          },
+          "timesheet_approval_status": {
+            "type": "string",
+            "description": "Timesheet approval status filter"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "GET_TIME_TRACKING_ENTRIES_FOR_TASK",
+      "target": "src.tools.time_tracking_tools:get_time_tracking_entries_for_task",
+      "description": "Get time tracking entries for a task. Use when you need to retrieve time tracking information recorded on a specific task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "offset": {
+            "type": "string",
+            "description": "Pagination offset token"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["task_gid"]
+      }
+    },
+    {
+      "id": "CREATE_TIME_TRACKING_ENTRY",
+      "target": "src.tools.time_tracking_tools:create_time_tracking_entry",
+      "description": "Create a time tracking entry on a task. Use when you need to log time spent on a task. Get task_gid from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT. entered_on is the date the time was logged (YYYY-MM-DD). Optionally set attributable_to (project GID from GET_MULTIPLE_PROJECTS) when the task is in multiple projects.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to log time on"
+          },
+          "duration_minutes": {
+            "type": "integer",
+            "description": "Time spent in minutes"
+          },
+          "entered_on": {
+            "type": "string",
+            "description": "Date the time was logged (YYYY-MM-DD)"
+          },
+          "attributable_to": {
+            "type": "string",
+            "description": "Project GID to attribute the time to (optional; use when task is in multiple projects)"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional description of work done"
+          },
+          "approval_status": {
+            "type": "string",
+            "description": "Optional: APPROVED, DRAFT, REJECTED, SUBMITTED"
+          },
+          "billable_status": {
+            "type": "string",
+            "description": "Optional: billable, nonBillable, notApplicable"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["task_gid", "duration_minutes", "entered_on"]
+      }
+    },
+    {
+      "id": "ADD_TASK_TO_SECTION",
+      "target": "src.tools.task_tools:add_task_to_section",
+      "description": "Adds an existing task to a section, optionally positioning it before or after another task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get section_gid from GET_SECTIONS_IN_PROJECT or CREATE_SECTION_IN_PROJECT. Get insert_before/insert_after task GIDs from GET_TASKS_FROM_A_SECTION.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to add"
+          },
+          "section_gid": {
+            "type": "string",
+            "description": "GID of the section to add the task to"
+          },
+          "insert_before": {
+            "type": "string",
+            "description": "GID of a task to insert before"
+          },
+          "insert_after": {
+            "type": "string",
+            "description": "GID of a task to insert after"
+          }
+        },
+        "required": [
+          "task_gid",
+          "section_gid"
+        ]
+      }
+    },
+    {
+      "id": "INSERT_ENUM_OPTION_FOR_CUSTOM_FIELD",
+      "target": "src.tools.custom_field_tools:insert_enum_option_for_custom_field",
+      "description": "Reorder an existing enum option within a custom field by moving it before or after another specified enum option. NOTE: This does NOT create new options — use CREATE_ENUM_OPTION_FOR_CUSTOM_FIELD to create. Get custom_field_gid from GET_CUSTOM_FIELDS_FOR_WORKSPACE or CREATE_CUSTOM_FIELD. The data object needs 'enum_option' (GID of option to move) and one of 'before_enum_option' or 'after_enum_option' (GID to position relative to). Get enum option GIDs from GET_CUSTOM_FIELD with opt_fields=['enum_options'].",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "custom_field_gid": {
+            "type": "string",
+            "description": "GID of the custom field containing the enum options"
+          },
+          "data": {
+            "type": "object",
+            "description": "Reorder data (e.g. {\"enum_option\": \"OPTION_GID\", \"before_enum_option\": \"OTHER_OPTION_GID\"} or {\"enum_option\": \"OPTION_GID\", \"after_enum_option\": \"OTHER_OPTION_GID\"})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "custom_field_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "CREATE_PROJECT_TEMPLATE",
+      "target": "src.tools.project_tools:save_project_as_template",
+      "description": "Create a project template from an existing project (save project as template). Returns an async job; poll the job to get the new project template. Get project_gid from GET_A_PROJECT or GET_MULTIPLE_PROJECTS. For organizations use team (from GET_TEAMS_IN_WORKSPACE); for regular workspaces use workspace (from GET_MULTIPLE_WORKSPACES).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to save as template (from GET_A_PROJECT or GET_MULTIPLE_PROJECTS)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name for the new project template"
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Whether the template is public to its team"
+          },
+          "team": {
+            "type": "string",
+            "description": "Team GID for the new template (organizations only; from GET_TEAMS_IN_WORKSPACE)"
+          },
+          "workspace": {
+            "type": "string",
+            "description": "Workspace GID for the new template (regular workspaces only; from GET_MULTIPLE_WORKSPACES)"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Optional fields for the job response (e.g. new_project_template, new_project_template.name)"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": ["project_gid", "name", "public"]
+      }
+    },
+    {
+      "id": "INSTANTIATE_PROJECT_TEMPLATE",
+      "target": "src.tools.project_tools:instantiate_project_template",
+      "description": "Instantiate (create) a real Asana project from a project template, returning the async job record. Requires Business+ plan. requested_dates and requested_roles are optional. Get project_template_gid from GET_PROJECT_TEMPLATES; team from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_template_gid": {
+            "type": "string",
+            "description": "GID of the project template to instantiate"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name for the new project"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of the team for the new project"
+          },
+          "privacy_setting": {
+            "type": "string",
+            "enum": [
+              "public_to_workspace",
+              "private_to_team",
+              "private"
+            ],
+            "description": "Privacy setting for the new project"
+          },
+          "is_strict": {
+            "type": "boolean",
+            "description": "If true, dates must map to template dates exactly"
+          },
+          "requested_dates": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Optional. Date variables for the new project. Format: [{\"gid\": \"<date_var_gid>\", \"value\": \"YYYY-MM-DD\"}, ...]"
+          },
+          "requested_roles": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Array of role mapping objects (e.g. [{\"gid\": \"ROLE_GID\", \"value\": \"USER_GID\"}])"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "project_template_gid",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "REMOVE_FOLLOWER_FROM_TASK",
+      "target": "src.tools.task_tools:remove_follower_from_task",
+      "description": "Remove one or more followers from a task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. Get follower user GIDs from GET_CURRENT_USER, GET_MULTIPLE_USERS, or GET_A_TASK (followers field with opt_fields=['followers']).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to remove followers from"
+          },
+          "followers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of user GIDs to remove as followers"
+          }
+        },
+        "required": [
+          "task_gid",
+          "followers"
+        ]
+      }
+    },
+    {
+      "id": "REMOVE_ITEM_FROM_PORTFOLIO",
+      "target": "src.tools.portfolio_tools:remove_item_from_portfolio",
+      "description": "Remove an item (e.g. a project) from an Asana portfolio. Requires Business+ plan. Get portfolio_gid from GET_PORTFOLIOS or CREATE_PORTFOLIO. Get item GID (project) from GET_PORTFOLIO_ITEMS (to see what's currently in the portfolio).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "portfolio_gid": {
+            "type": "string",
+            "description": "GID of the portfolio"
+          },
+          "item": {
+            "type": "string",
+            "description": "GID of the item (project) to remove"
+          },
+          "opt_fields": {
+            "type": "string",
+            "description": "Comma-separated list of optional fields"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "portfolio_gid",
+          "item"
+        ]
+      }
+    },
+    {
+      "id": "REMOVE_TAG_FROM_TASK",
+      "target": "src.tools.task_tools:remove_tag_from_task",
+      "description": "Remove an existing tag from a task in Asana. Get task_gid from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT. Get tag GID from GET_TAGS, or from GET_A_TASK with opt_fields=['tags'] to see which tags are on the task.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task"
+          },
+          "tag": {
+            "type": "string",
+            "description": "GID of the tag to remove"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid",
+          "tag"
+        ]
+      }
+    },
+    {
+      "id": "SEARCH_TASKS_IN_WORKSPACE",
+      "target": "src.tools.task_tools:search_tasks_in_workspace",
+      "description": "Search tasks across a workspace with advanced filters. Get workspace_gid from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES. Get assignee GIDs from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get project GIDs from GET_MULTIPLE_PROJECTS. Supports text search, filtering by assignee, project, and resource_subtype.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "workspace_gid": {
+            "type": "string",
+            "description": "GID of the workspace to search in"
+          },
+          "text": {
+            "type": "string",
+            "description": "Text to search for in task names and descriptions"
+          },
+          "resource_subtype": {
+            "type": "string",
+            "description": "Filter by resource subtype (e.g. default_task, milestone)"
+          },
+          "assignee_any": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of user GIDs — return tasks assigned to any of these users"
+          },
+          "projects_any": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of project GIDs — return tasks in any of these projects"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Pagination limit"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "id": "SUBMIT_PARALLEL_REQUESTS",
+      "target": "src.tools.batch_tools:submit_parallel_requests",
+      "description": "Submit multiple Asana API requests in parallel using the Batch API. Maximum 10 actions per batch. Use when you need to perform several operations efficiently, such as fetching multiple tasks or creating multiple subtasks at once. The data object must contain an 'actions' array (not 'requests'), each with 'method' (GET/POST/PUT/DELETE), 'relative_path', and optionally 'data' for POST/PUT requests.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "description": "Batch request data object with 'actions' array (e.g. {\"actions\": [{\"method\": \"GET\", \"relative_path\": \"/tasks/123\"}, {\"method\": \"POST\", \"relative_path\": \"/tasks/123/subtasks\", \"data\": {\"name\": \"Subtask\"}}]}). Maximum 10 actions."
+          }
+        },
+        "required": [
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_A_TASK",
+      "target": "src.tools.task_tools:update_a_task",
+      "description": "Updates attributes of an existing Asana task identified by its task_gid. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK. The data object can include: name, notes, assignee (user GID from GET_CURRENT_USER), due_on, due_at, completed, projects (array of project GIDs from GET_MULTIPLE_PROJECTS), and more.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to update"
+          },
+          "data": {
+            "type": "object",
+            "description": "Update data (e.g. {\"name\": \"Updated task name\", \"completed\": true, \"assignee\": \"USER_GID\"})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_CUSTOM_FIELD",
+      "target": "src.tools.custom_field_tools:update_custom_field",
+      "description": "Update a custom field by its globally unique identifier. Get custom_field_gid from GET_CUSTOM_FIELDS_FOR_WORKSPACE or CREATE_CUSTOM_FIELD. The data object can include: name, enabled, precision (for number fields), enum_options (for enum fields), and more.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "custom_field_gid": {
+            "type": "string",
+            "description": "GID of the custom field to update"
+          },
+          "data": {
+            "type": "object",
+            "description": "Update data (e.g. {\"name\": \"Updated field name\", \"enabled\": true})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "custom_field_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_ENUM_OPTION",
+      "target": "src.tools.custom_field_tools:update_enum_option",
+      "description": "Update an enum option for a custom field. Get enum_option_gid from GET_CUSTOM_FIELD with opt_fields=['enum_options']. The data object can include: name, color, enabled status.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "enum_option_gid": {
+            "type": "string",
+            "description": "GID of the enum option to update"
+          },
+          "data": {
+            "type": "object",
+            "description": "Update data (e.g. {\"name\": \"Updated option\", \"color\": \"red\", \"enabled\": true})"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "enum_option_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_PROJECT",
+      "target": "src.tools.project_tools:update_project",
+      "description": "Update a project. Get project_gid from GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or CREATE_A_PROJECT. Get owner GID from GET_CURRENT_USER or GET_MULTIPLE_USERS. Get team GID from GET_TEAMS_IN_WORKSPACE.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to update"
+          },
+          "name": {
+            "type": "string",
+            "description": "New name for the project"
+          },
+          "archived": {
+            "type": "boolean",
+            "description": "Whether the project is archived"
+          },
+          "color": {
+            "type": "string",
+            "description": "Color of the project"
+          },
+          "custom_fields": {
+            "type": "object",
+            "description": "Custom field values"
+          },
+          "default_view": {
+            "type": "string",
+            "description": "Default view (list, board, calendar, timeline)"
+          },
+          "due_date": {
+            "type": "string",
+            "description": "Due date in YYYY-MM-DD format"
+          },
+          "due_on": {
+            "type": "string",
+            "description": "Due date in YYYY-MM-DD format"
+          },
+          "html_notes": {
+            "type": "string",
+            "description": "HTML notes"
+          },
+          "is_template": {
+            "type": "boolean",
+            "description": "Whether this is a template"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Free-form text notes"
+          },
+          "owner": {
+            "type": "string",
+            "description": "GID of the owner (user)"
+          },
+          "public": {
+            "type": "boolean",
+            "description": "Whether the project is public"
+          },
+          "start_on": {
+            "type": "string",
+            "description": "Start date in YYYY-MM-DD format"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of the team"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_TAG",
+      "target": "src.tools.tag_tools:update_tag",
+      "description": "Update an existing tag by its globally unique identifier. Get tag_gid from GET_TAGS or GET_TAG. The data object can include: name, color.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_gid": {
+            "type": "string",
+            "description": "GID of the tag to update"
+          },
+          "data": {
+            "type": "object",
+            "description": "Update data (e.g. {\"name\": \"Updated tag name\", \"color\": \"blue\"})"
+          }
+        },
+        "required": [
+          "tag_gid",
+          "data"
+        ]
+      }
+    },
+    {
+      "id": "UPDATE_TEAM",
+      "target": "src.tools.team_tools:update_team",
+      "description": "Update details of an existing team. Get team_gid from GET_TEAMS_IN_WORKSPACE or GET_TEAM. Get organization GID from GET_CURRENT_USER (workspaces field) or GET_MULTIPLE_WORKSPACES.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "team_gid": {
+            "type": "string",
+            "description": "GID of the team to update"
+          },
+          "name": {
+            "type": "string",
+            "description": "New name for the team"
+          },
+          "description": {
+            "type": "string",
+            "description": "New description for the team"
+          },
+          "organization": {
+            "type": "string",
+            "description": "GID of the organization"
+          },
+          "opt_fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of optional fields to include in the response"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "team_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_ATTACHMENT",
+      "target": "src.tools.attachment_tools:delete_attachment",
+      "description": "Delete an attachment by its globally unique identifier. Get attachment_gid from GET_ATTACHMENT or GET_TASK_ATTACHMENTS.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "attachment_gid": {
+            "type": "string",
+            "description": "GID of the attachment to delete"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "attachment_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_CUSTOM_FIELD",
+      "target": "src.tools.custom_field_tools:delete_custom_field",
+      "description": "Delete a custom field by its globally unique identifier. Get custom_field_gid from GET_CUSTOM_FIELDS_FOR_WORKSPACE or GET_CUSTOM_FIELD.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "custom_field_gid": {
+            "type": "string",
+            "description": "GID of the custom field to delete"
+          }
+        },
+        "required": [
+          "custom_field_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_PROJECT",
+      "target": "src.tools.project_tools:delete_project",
+      "description": "Delete a project. Get project_gid from GET_MULTIPLE_PROJECTS, GET_WORKSPACE_PROJECTS, or GET_A_PROJECT.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to delete"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "project_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_TAG",
+      "target": "src.tools.tag_tools:delete_tag",
+      "description": "Delete a specific tag by its GID. Get tag_gid from GET_TAGS or GET_TAG.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "tag_gid": {
+            "type": "string",
+            "description": "GID of the tag to delete"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "tag_gid"
+        ]
+      }
+    },
+    {
+      "id": "DELETE_TASK",
+      "target": "src.tools.task_tools:delete_task",
+      "description": "Delete a task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or GET_A_TASK.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to delete"
+          },
+          "opt_pretty": {
+            "type": "boolean",
+            "description": "Pretty-print the JSON response"
+          }
+        },
+        "required": [
+          "task_gid"
+        ]
+      }
+    },
+    {
+      "id": "DUPLICATE_PROJECT",
+      "target": "src.tools.project_tools:duplicate_project",
+      "description": "Duplicate a project. Get project_gid from GET_MULTIPLE_PROJECTS or GET_A_PROJECT. Get team GID from GET_TEAMS_IN_WORKSPACE. The include array can contain: 'members', 'notes', 'forms', 'task_notes', 'task_assignee', 'task_subtasks', 'task_attachments', 'task_dates', 'task_dependencies', 'task_followers', 'task_tags', 'task_projects'.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "project_gid": {
+            "type": "string",
+            "description": "GID of the project to duplicate"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name for the duplicated project"
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of fields to include in the duplication (e.g. ['members', 'notes', 'task_assignee'])"
+          },
+          "schedule_dates": {
+            "type": "object",
+            "description": "Object to schedule dates for the duplicated project"
+          },
+          "team": {
+            "type": "string",
+            "description": "GID of the team for the duplicated project"
+          }
+        },
+        "required": [
+          "project_gid",
+          "name"
+        ]
+      }
+    },
+    {
+      "id": "DUPLICATE_TASK",
+      "target": "src.tools.task_tools:duplicate_task",
+      "description": "Duplicate a task. Get task_gid from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or GET_A_TASK. The include array can contain: 'notes', 'assignee', 'subtasks', 'attachments', 'tags', 'followers', 'projects', 'parent', 'dependencies'.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "task_gid": {
+            "type": "string",
+            "description": "GID of the task to duplicate"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name for the duplicated task (optional, defaults to original name)"
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of fields to include in the duplication (e.g. ['notes', 'assignee', 'subtasks'])"
+          }
+        },
+        "required": [
+          "task_gid"
+        ]
+      }
+    }
+  ]
+}

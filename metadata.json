@@ -1,0 +1,185 @@
+{
+  "asana": {
+    "description": "Asana MCP exposes the Asana REST API as structured tools. It can create and update projects and tasks, manage teams and workspaces, handle custom fields, tags, portfolios, goals, stories/comments, memberships, time tracking entries, and more. It is optimized for natural-language use: many tools default workspace and user from your current Asana session, and descriptions explain how to get each GID from other tools.",
+    "capabilities": [
+      "Create, read, update, and delete Asana projects",
+      "Create, read, update, and delete tasks and subtasks",
+      "Associate tasks with projects, sections, tags, and user task lists",
+      "Search tasks in a workspace with rich filters",
+      "Manage followers on projects and tasks",
+      "Create and manage sections within projects",
+      "Create and manage portfolios and portfolio items",
+      "Create and manage goals, time periods, and supporting relationships",
+      "Create and manage custom fields and enum options",
+      "Create and manage tags in a workspace and attach/detach them from tasks",
+      "Create and manage memberships for projects, portfolios, goals, and custom fields",
+      "Create and manage teams and team memberships",
+      "Add/remove users to/from workspaces and teams",
+      "Create and read stories (comments) on tasks",
+      "Upload and manage attachments on tasks and projects",
+      "Create and read time tracking entries on tasks",
+      "Batch multiple Asana API calls via a single batch tool",
+      "Fetch events to monitor changes on tasks, projects, tags, etc."
+    ],
+    "not_supported": [
+      "Allocations and resource management APIs (all allocation tools removed)",
+      "Audit log events (GET_AUDIT_LOG_EVENTS removed)",
+      "Project briefs (create/update/delete/get brief tools removed)",
+      "Goal relationships listing (GET_GOAL_RELATIONSHIPS removed)",
+      "Task templates and goal templates APIs (GET_TASK_TEMPLATES removed)",
+      "Direct user custom field updates via UPDATE_USER (must use UPDATE_USER_FOR_WORKSPACE instead)",
+      "Any Asana feature not exposed by the public REST API or disabled by plan limits (for example, Resource Management without an Enterprise plan)"
+    ],
+    "setup_notes": "Requires an Asana OAuth app (client ID, client secret, redirect URI) and user consent. Environment variables ASANA_CLIENT_ID, ASANA_CLIENT_SECRET, and ASANA_REDIRECT_URI must be set. Tokens are cached and refreshed automatically; no configuration of workspaces or users is needed inside the tools themselves.",
+    "workflow": "At runtime: authenticate once → use GET_CURRENT_USER to learn your user GID and workspaces → list or search projects/tasks with GET_MULTIPLE_PROJECTS / GET_MULTIPLE_TASKS / SEARCH_TASKS_IN_WORKSPACE → create or update entities (CREATE_A_PROJECT, CREATE_A_TASK, UPDATE_A_TASK, UPDATE_PROJECT) → link tasks to projects, sections, tags, and goals (ADD_PROJECT_FOR_TASK, ADD_TASK_TO_SECTION, ADD_TAG_TO_TASK, ADD_SUPPORTING_RELATIONSHIP) → manage memberships, followers, time tracking, and portfolios/goals as needed.",
+    "file_handling": "The Asana MCP does not manage local media files. Attachments are handled via Asana’s attachment endpoints by providing either a file path in the workspace (for uploads) or an external URL. All other tools operate purely on Asana resource IDs (GIDs) and JSON payloads.",
+    "tools_summary": {
+      "total_tools": 142,
+      "manifest": "tools_manifest.json",
+      "note": "All tools are defined in tools_manifest.json. This metadata file highlights common and frequently used tools; other tools follow the same patterns."
+    },
+    "tools": [
+      {
+        "name": "GET_CURRENT_USER",
+        "description": "Returns the authenticated user's Asana record (gid, name, email, workspaces). Often the first call to establish context and get workspace GIDs.",
+        "parameters": {}
+      },
+      {
+        "name": "GET_MULTIPLE_WORKSPACES",
+        "description": "Lists all workspaces available to the authenticated user.",
+        "parameters": {
+          "limit": "integer (optional) – Pagination limit.",
+          "offset": "string (optional) – Pagination offset token.",
+          "opt_fields": "array<string> (optional) – Extra fields to include.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "CREATE_A_PROJECT",
+        "description": "Creates a new project in a workspace (and optionally a team).",
+        "parameters": {
+          "workspace_gid": "string (required) – Workspace GID from GET_CURRENT_USER or GET_MULTIPLE_WORKSPACES.",
+          "name": "string (required) – Project name.",
+          "team_gid": "string (optional) – Team GID when workspace is an organization.",
+          "color": "string (optional) – Project color.",
+          "icon": "string (optional) – Project icon.",
+          "default_view": "string (optional) – list, board, calendar, or timeline.",
+          "notes": "string (optional) – Project description.",
+          "archived": "boolean (optional) – Whether project is archived.",
+          "public": "boolean (optional) – Whether project is public.",
+          "due_on": "string (optional) – Due date (YYYY-MM-DD).",
+          "start_on": "string (optional) – Start date (YYYY-MM-DD)."
+        }
+      },
+      {
+        "name": "CREATE_A_TASK",
+        "description": "Creates a new Asana task; requires workspace, parent, or projects for association.",
+        "parameters": {
+          "data": "object (required) – Task definition (e.g. {\"name\": \"My Task\", \"workspace\": \"GID\", \"projects\": [\"GID\"], \"assignee\": \"GID\"}).",
+          "opt_fields": "array<string> (optional) – Extra fields to include in response.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "UPDATE_A_TASK",
+        "description": "Updates attributes of an existing task (name, notes, assignee, dates, projects, etc.).",
+        "parameters": {
+          "task_gid": "string (required) – Task GID from GET_MULTIPLE_TASKS, GET_TASKS_FROM_A_PROJECT, or CREATE_A_TASK.",
+          "data": "object (required) – Fields to update, e.g. {\"name\": \"Updated name\", \"completed\": true}.",
+          "opt_fields": "array<string> (optional) – Extra fields to include.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "GET_MULTIPLE_TASKS",
+        "description": "Retrieves a list of tasks filtered by assignee, project, section, tag, user task list, or date ranges.",
+        "parameters": {
+          "assignee": "string (optional) – User GID (requires workspace).",
+          "workspace": "string (optional) – Workspace GID (requires assignee).",
+          "project": "string (optional) – Project GID.",
+          "section": "string (optional) – Section GID.",
+          "tag": "string (optional) – Tag GID.",
+          "user_task_list": "string (optional) – User task list GID.",
+          "completed_since": "string (optional) – Return tasks completed since this ISO date.",
+          "modified_since": "string (optional) – Return tasks modified since this ISO date.",
+          "limit": "integer (optional) – Pagination limit.",
+          "offset": "string (optional) – Pagination offset token.",
+          "opt_fields": "array<string> (optional) – Extra fields to include.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "ADD_TAG_TO_TASK",
+        "description": "Adds an existing tag to a task (tags cannot be added via UPDATE_A_TASK).",
+        "parameters": {
+          "task_gid": "string (required) – Task GID from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT.",
+          "tag_gid": "string (required) – Tag GID from GET_TAGS or CREATE_TAG.",
+          "opt_fields": "string (optional) – Comma-separated optional fields.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "ADD_TASK_DEPENDENCIES",
+        "description": "Adds dependency relationships to a task, making other tasks prerequisites.",
+        "parameters": {
+          "task_gid": "string (required) – Task that depends on other tasks.",
+          "dependencies": "array<string> (required) – Task GIDs that must be completed first.",
+          "opt_fields": "string (optional) – Comma-separated optional fields.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "ADD_SUPPORTING_RELATIONSHIP",
+        "description": "Links a project, task, portfolio, or another goal as a supporting resource for a goal.",
+        "parameters": {
+          "goal_gid": "string (required) – Goal to add support to (from GET_GOALS or CREATE_GOAL).",
+          "data": "object (required) – {\"supporting_resource\": \"GID\", \"contribution_weight\": 0|1}. supporting_resource from GET_MULTIPLE_PROJECTS, GET_MULTIPLE_TASKS, GET_PORTFOLIOS, or GET_GOALS.",
+          "opt_fields": "array<string> (optional) – Optional fields in response.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "CREATE_TAG",
+        "description": "Creates a new tag in a workspace for categorizing tasks.",
+        "parameters": {
+          "data": "object (required) – {\"workspace\": \"WORKSPACE_GID\", \"name\": \"Tag name\", \"color\": \"light-green\"} (color optional).",
+          "opt_fields": "array<string> (optional) – Optional fields in response.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "CREATE_TIME_TRACKING_ENTRY",
+        "description": "Creates a time tracking entry on a task.",
+        "parameters": {
+          "task_gid": "string (required) – Task GID from GET_MULTIPLE_TASKS or GET_TASKS_FROM_A_PROJECT.",
+          "duration_minutes": "integer (required) – Time spent in minutes.",
+          "entered_on": "string (required) – Date logged (YYYY-MM-DD).",
+          "attributable_to": "string (optional) – Project GID to attribute time to (for tasks in multiple projects).",
+          "description": "string (optional) – Description of work done.",
+          "approval_status": "string (optional) – APPROVED, DRAFT, REJECTED, or SUBMITTED.",
+          "billable_status": "string (optional) – billable, nonBillable, or notApplicable.",
+          "opt_fields": "array<string> (optional) – Optional fields in response.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      },
+      {
+        "name": "SUBMIT_PARALLEL_REQUESTS",
+        "description": "Uses the Asana Batch API to execute multiple requests in parallel (up to 10 actions).",
+        "parameters": {
+          "data": "object (required) – {\"actions\": [{\"method\": \"GET|POST|PUT|DELETE\", \"relative_path\": \"/tasks/123\", \"data\": {...}}, ...]}."
+        }
+      },
+      {
+        "name": "GET_EVENTS",
+        "description": "Retrieves Asana events for a resource using sync tokens (two-step long-poll flow).",
+        "parameters": {
+          "resource_gid": "string (required) – GID of the resource to watch (task, project, tag, etc.).",
+          "sync": "string (optional) – Sync token from a previous call (omit for initial request).",
+          "opt_fields": "array<string> (optional) – Optional fields in event records.",
+          "opt_pretty": "boolean (optional) – Pretty-print JSON response."
+        }
+      }
+    ]
+  }
+}
+

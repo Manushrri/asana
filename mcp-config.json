@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "asana-mcp": {
+      "command": "uv",
+      "args": ["run", "run_server.py"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "ASANA_CLIENT_ID": "${env:ASANA_CLIENT_ID}",
+        "ASANA_CLIENT_SECRET": "${env:ASANA_CLIENT_SECRET}",
+        "ASANA_REDIRECT_URI": "${env:ASANA_REDIRECT_URI}"
+      }
+    }
+  }
+}
+
